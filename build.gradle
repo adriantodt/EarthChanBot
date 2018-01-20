@@ -91,7 +91,7 @@ artifacts {
 }
 
 //Define the Main Class
-mainClassName = "xyz.hbdv.bot.boot.MultiBotBoot"
+mainClassName = 'xyz.cuteclouds.earthchan.Bootstrap'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '3.5'
