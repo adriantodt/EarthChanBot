@@ -1,0 +1,125 @@
+/* Earth-chan's build.gradle */
+
+//Plugins
+plugins {
+    //Compiles Kotlin
+    id 'org.jetbrains.kotlin.jvm' version '1.2.20'
+    //Adds an Executable Manifest
+    id 'application'
+    //Creates FatJars
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
+
+group 'xyz.cuteclouds'
+version = new Version(major: 1, minor: 0, revision: 0)
+
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    def kotlin_version = "1.2.20"
+
+    //Source of memes
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    // Main APIs
+    compile 'net.dv8tion:JDA:3.5.0_327'
+
+    //Helping stuff
+    compile 'br.com.brjdevs:utils:1.0.0_15'
+    compile 'br.com.brjdevs:snowflakes:1.0.0_2'
+    compile 'xyz.cuteclouds:CloudyUtils:1.0'
+    compile 'xyz.cuteclouds:HungerGames:1.0.1'
+    compile 'com.google.guava:guava:22.0'
+    compile 'org.apache.commons:commons-lang3:3.7'
+    compile 'org.apache-extras.beanshell:bsh:2.0b6'
+
+
+    //KaiperScript Support
+    compile 'xyz.avarel.kaiper:Kaiper-Interpreter:1.1.0'
+    //meme bc Kaiper got trolled by Bintray
+    compile 'xyz.avarel.kaiper:Kaiper-AST:1.1.0'
+    compile 'xyz.avarel.kaiper:Kaiper-Runtime-Lib:1.1.0'
+    compile 'xyz.avarel.kaiper:Kaiper-Common:1.1.0'
+    //(will be fixed in next version)
+
+    //Scanning and Injections
+    compile group: 'com.google.inject', name: 'guice', version: '4.1.0', classifier: 'no_aop'
+    compile group: 'org.reflections', name: 'reflections', version: '0.9.10'
+
+    //Data Stack
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0'
+    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0'
+    compile('com.rethinkdb:rethinkdb-driver:2.3.3') {
+        exclude group: 'junit', module: 'junit'
+    }
+
+    //Logging
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+    compile 'io.github.microutils:kotlin-logging:1.4.6'
+
+    //Console
+    compile 'org.jline:jline:3.5.1'
+    compile 'net.java.dev.jna:jna:4.5.0'
+    compile 'org.fusesource.jansi:jansi:1.16'
+}
+
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+build.dependsOn shadowJar
+
+artifacts {
+    archives shadowJar
+}
+
+//Define the Main Class
+mainClassName = "xyz.hbdv.bot.boot.MultiBotBoot"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
+
+task cleanDistTar(type: Delete) { delete files(distTar) }
+distTar { classifier = "trash" }
+distTar.finalizedBy cleanDistTar
+
+task cleanDistZip(type: Delete) { delete files(distZip) }
+distZip { classifier = "trash" }
+distZip.finalizedBy cleanDistZip
+
+task cleanShittyJar(type: Delete) { delete files(jar) }
+jar { classifier = "trash" }
+jar.finalizedBy cleanShittyJar
+
+shadowJar { classifier = "" }
+
+class Version {
+    String major, minor, revision
+
+    static String getBuild() {
+        System.getenv("BUILD_NUMBER") ?: System.getProperty("BUILD_NUMBER") ?: "D" + new Date().format('ddMMyyyy')
+    }
+
+    String toString() {
+        "${major}.${minor}.${revision}_$build"
+    }
+}
